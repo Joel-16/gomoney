@@ -22,3 +22,22 @@ export const authorizationMiddleware = (req: Request, res: Response, next: NextF
     return next(customError);
   }
 };
+
+export const authorizationMiddlewareAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    const customError = new CustomError(400, "Authorization header not provided");
+    return next(customError);
+  }
+  const token = authHeader.split(" ")[1];
+  let jwtPayload: { [key: string]: any };
+  try {
+    jwtPayload = jwt.verify(token, process.env.ADMINJWT_SECRET as string) as { [key: string]: any };
+    ["iat", "exp"].forEach((keyToRemove) => delete jwtPayload[keyToRemove]);
+    req.jwtPayload = jwtPayload as JwtPayload;
+    next();
+  } catch (err) {
+    const customError = new CustomError(401, "Unauthorized, Please attempt to login again");
+    return next(customError);
+  }
+};

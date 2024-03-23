@@ -32,7 +32,7 @@ export class FixtureService {
     return fixture;
   }
 
-  async getAllFixtures(query, next: NextFunction) {
+  async getAllFixtures(query) {
     const fixtures = await this.fixture.find(
       {
         ...query,
@@ -42,7 +42,7 @@ export class FixtureService {
     return fixtures
   }
 
-  async getFixture(id: string, next: NextFunction) {
+  async getFixture(id: string) {
     const fixture = await this.fixture.findById(id );
     return fixture
   }

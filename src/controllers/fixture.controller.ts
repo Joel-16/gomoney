@@ -7,23 +7,49 @@ import { FixtureService } from "../services";
 export class FixtureController {
   constructor(private readonly fixtureService: FixtureService) {}
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
+  createFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.fixtureService.login(req.body, next);
+      const result = await this.fixtureService.createFixture(req.body, next);
       res.customSuccess(200, result);
     } catch {
       next();
     }
   };
 
-  register = async (req: Request, res: Response, next: NextFunction) => {
+  getAllFixtures = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.fixtureService.register(req.body, next);
+      const result = await this.fixtureService.getAllFixtures(req.body);
       res.customSuccess(200, result);
     } catch {
       next();
     }
   };
 
+  getFixture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.fixtureService.getFixture(req.body);
+      res.customSuccess(200, result);
+    } catch {
+      next();
+    }
+  };
+
+  editFixture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = req.params.id
+      const result = await this.fixtureService.editFixture(id, req.body, next);
+      res.customSuccess(200, result);
+    } catch {
+      next();
+    }
+  };
   
+  deleteFixture = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.fixtureService.deleteFixture(req.body, next);
+      res.customSuccess(200, result);
+    } catch {
+      next();
+    }
+  };
 }
