@@ -1,5 +1,6 @@
 export type JwtPayload = {
   id: string;
+  admin: boolean
 };
 export type FixtureDto = {
   home: string;
@@ -10,7 +11,7 @@ export type FixtureDto = {
 
 export type TeamDto = {
   name: string;
-  code: string;
-  venue: string;
-  status: string;
+  code_name: string;
+  stadium: string;
+  coach: string;
 }

@@ -52,4 +52,14 @@ export class TeamController {
       next();
     }
   };
+
+  search = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const text = req.query.text as string
+      const result = await this.teamService.deleteTeam(text, next);
+      res.customSuccess(200, result);
+    } catch {
+      next();
+    }
+  };
 }

@@ -36,7 +36,7 @@ app.get("/ping", (req, res) => {
     message: "Server running....",
   });
 });
-app.use('/stripe/callback', bodyParser.raw({ type: '*/*' }))
+
 app.use(bodyParser.json());
 app.use("/", routes);
 

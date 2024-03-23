@@ -2,16 +2,15 @@ import { Router } from "express";
 import Container from "typedi";
 
 import { FixtureController } from "../controllers";
-import { authorizationMiddleware } from "../middleware/checkJwt";
-import { validatorLogin, validatorRegister, validatorEditProfile } from "../middleware/validation";
+import { validatorFixtureCreate, validatorFixtureUpdate } from "../middleware/validation";
 
 const fixtureController = Container.get(FixtureController);
 const router = Router();
 
-router.post("/", [validatorLogin], fixtureController.createFixture);
-router.get("/", [validatorRegister], fixtureController.getAllFixtures);
-router.get("/:id", [validatorRegister], fixtureController.getFixture);
-router.patch("/:id", [authorizationMiddleware, validatorEditProfile], fixtureController.editFixture);
-router.delete("/:id", [authorizationMiddleware], fixtureController.deleteFixture);
+router.post("/", [validatorFixtureCreate], fixtureController.createFixture);
+router.get("/",fixtureController.getAllFixtures);
+router.get("/:id", fixtureController.getFixture);
+router.patch("/:id", [validatorFixtureUpdate], fixtureController.editFixture);
+router.delete("/:id", fixtureController.deleteFixture);
 
 export default router;

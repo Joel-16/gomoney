@@ -24,7 +24,7 @@ export class AdminService {
     });
     return {
       message: "successful signup",
-      token: createJwtToken({ id: admin._id.toString() }),
+      token: createJwtToken({ id: admin._id.toString(), admin: true }),
     };
   }
 
@@ -40,7 +40,7 @@ export class AdminService {
     }
     return {
       message: "login successful",
-      token: createJwtToken({ id: admin._id.toString() }),
+      token: createJwtToken({ id: admin._id.toString(), admin: true }),
     };
   }
 

@@ -46,7 +46,18 @@ export class FixtureController {
   
   deleteFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.fixtureService.deleteFixture(req.body, next);
+      const id = req.params.id
+      const result = await this.fixtureService.deleteFixture(id, next);
+      res.customSuccess(200, result);
+    } catch {
+      next();
+    }
+  };
+
+  link= async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id
+      const result = await this.fixtureService.link(id);
       res.customSuccess(200, result);
     } catch {
       next();

@@ -76,9 +76,16 @@ export class FixtureService {
   async deleteFixture(id: string, next: NextFunction) {
     let fixture = await this.fixture.findById(id);
     if (!fixture) {
-      next(new CustomError(400, "fixture doesn't exist, Please Sign in again"));
+      next(new CustomError(400, "fixture doesn't exist, Please selecta a valid fixture"));
     }
 
-    return fixture;
+    await this.fixture.deleteOne({_id:id})
+    return {message: "fixture deleted successfully"};
   }
+
+  async link(id: string) {
+    const fixture = await this.fixture.findOne({link: id});
+    return fixture
+  }
+
 }

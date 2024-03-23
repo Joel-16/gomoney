@@ -15,15 +15,17 @@ export class AccountService {
     if (status) {
       next(new CustomError(401, "Email already associated with an account"));
     }
-    await this.account.create({
+    const account= await this.account.create({
       email: payload.email,
       password: hashSync(payload.password, 10),
       firstname: payload.firstname,
       lastname: payload.lastname,
       address: payload.address
     });
+
     return {
-      message: "Successful registration, You can now proceed to Sign in",
+      message: "login successful",
+      token: createJwtToken({ id: account._id.toString(), admin: false }),
     };
   }
 
@@ -39,7 +41,7 @@ export class AccountService {
     }
     return {
       message: "login successful",
-      token: createJwtToken({ id: account._id.toString() }),
+      token: createJwtToken({ id: account._id.toString(), admin: false }),
     };
   }
 

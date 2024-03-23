@@ -8,9 +8,6 @@ class Team {
   code_name: string;
 
   @prop()
-  description: string;
-
-  @prop()
   stadium: string;
 
   @prop()

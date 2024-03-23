@@ -3,14 +3,17 @@ import { Service } from "typedi";
 
 import { Team } from "../models";
 import { CustomError } from "../utils/response/custom-error/CustomError";
+import { FixtureService } from "./fixture.service";
+import { TeamDto } from "../types";
 
 @Service()
 export class TeamService {
   constructor(
-    private readonly team = Team
+    private readonly team = Team,
+    private readonly fixtureService: FixtureService
   ) {}
 
-  async createTeam(payload, next: NextFunction) {
+  async createTeam(payload: TeamDto, next: NextFunction) {
     const status = await this.team.findOne({ $or: [{ name: payload.name }, { code_name: payload.code_name }] });
     if (status) {
       next(new CustomError(401, "Name or Code name already associated with a team"));
@@ -18,7 +21,6 @@ export class TeamService {
     const team = await this.team.create({
       name: payload.name,
       code_name: payload.code_name,
-      description: payload.description,
       stadium: payload.stadium,
       coach: payload.coach
     });
@@ -30,12 +32,12 @@ export class TeamService {
     return teams
   }
 
-  async getTeam(id: string) {
+  async getTeam(id: string): Promise<TeamDto> {
     const team = await this.team.findById(id );
     return team
   }
 
-  async editTeam(id: string, payload, next: NextFunction) {
+  async editTeam(id: string, payload: Partial<TeamDto>, next: NextFunction):Promise<TeamDto> {
     let team = await this.team.findOne({ _id: id });
     if (!team) {
       next(new CustomError(400, "team doesn't exist, Select a valid team"));
@@ -49,9 +51,8 @@ export class TeamService {
     await this.team.updateOne(
       { _id: id },
       {
-        name: payload.home,
+        name: payload.name,
         code_name: payload.code_name,
-        description: payload.description,
         stadium: payload.stadium,
         coach: payload,
       }
@@ -65,6 +66,23 @@ export class TeamService {
       next(new CustomError(400, "team doesn't exist, Please select a valid team"));
     }
 
-    return team;
+    await this.team.deleteOne({_id:id})
+    return {message: "Team deleted successfully"};
+  }
+
+  async search(text: string, next: NextFunction) {
+    const team = await this.team.findOne({$or:[{name: text}, {coach: text}, {code_name: text}, {stadium: text}]});
+    if(!team){
+      next(new CustomError(400, "No team or fixture matches the text you entered"));
+    }
+    const [pendingFixtures, completedFixtures]= await Promise.all([
+      this.fixtureService.getAllFixtures({status: "pending", $or:[{home: team.id}, {away: team.id}]}),
+      this.fixtureService.getAllFixtures({status: "completed",  $or:[{home: team.id}, {away: team.id}]})
+    ])
+    return{
+      team,
+      pendingFixtures,
+      completedFixtures
+    }
   }
 }
