@@ -1,16 +1,15 @@
 import { NextFunction } from "express";
 import { Service } from "typedi";
 
-import { Team } from "../models";
+import { Fixture, Team } from "../models";
 import { CustomError } from "../utils/response/custom-error/CustomError";
-import { FixtureService } from "./fixture.service";
 import { TeamDto } from "../types";
 
 @Service()
 export class TeamService {
   constructor(
     private readonly team = Team,
-    private readonly fixtureService: FixtureService
+    private readonly fixture= Fixture
   ) {}
 
   async createTeam(payload: TeamDto, next: NextFunction) {
@@ -27,7 +26,7 @@ export class TeamService {
     return team;
   }
 
-  async getAllTeams(query) {
+  async getAllTeams(query?:any) {
     const teams = await this.team.find(query);
     return teams
   }
@@ -42,7 +41,7 @@ export class TeamService {
     if (!team) {
       next(new CustomError(400, "team doesn't exist, Select a valid team"));
     }
-
+    
     const status = await this.team.findOne({ $or: [{ name: payload.name }, { code_name: payload.code_name }] });
     if (status) {
       next(new CustomError(401, "Name or Code name already associated with a team"));
@@ -54,7 +53,7 @@ export class TeamService {
         name: payload.name,
         code_name: payload.code_name,
         stadium: payload.stadium,
-        coach: payload,
+        coach: payload.coach,
       }
     );
     return await this.team.findById(id);
@@ -76,8 +75,8 @@ export class TeamService {
       next(new CustomError(400, "No team or fixture matches the text you entered"));
     }
     const [pendingFixtures, completedFixtures]= await Promise.all([
-      this.fixtureService.getAllFixtures({status: "pending", $or:[{home: team.id}, {away: team.id}]}),
-      this.fixtureService.getAllFixtures({status: "completed",  $or:[{home: team.id}, {away: team.id}]})
+      this.fixture.find({status: "pending", $or:[{home: team.id}, {away: team.id}]}),
+      this.fixture.find({status: "completed",  $or:[{home: team.id}, {away: team.id}]})
     ])
     return{
       team,

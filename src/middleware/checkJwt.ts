@@ -23,7 +23,7 @@ export const authorizationMiddleware = (req: Request, res: Response, next: NextF
     next();
   } catch (err) {
     const customError = new CustomError(401, "Unauthorized, Please attempt to login again");
-    return next(customError);
+    next(customError);
   }
 };
 

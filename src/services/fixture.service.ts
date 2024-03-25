@@ -1,25 +1,29 @@
 import { NextFunction } from "express";
 import { Service } from "typedi";
 
-import { Fixture } from "../models";
-import {TeamService} from "../services"
+import { Fixture, Team } from "../models";
 import { CustomError } from "../utils/response/custom-error/CustomError";
+import { FixtureDto } from "../types";
 
 @Service()
 export class FixtureService {
-  constructor(
+  constructor(  
     private readonly fixture = Fixture,
-    private readonly teamService :TeamService
-  ) {}
+    private readonly team= Team
+  ) { }
 
-  async createFixture(payload, next: NextFunction) {
+  async createFixture(payload: FixtureDto, next: NextFunction) {
 
-    const [home, away ] = await Promise.all([
-      this.teamService.getTeam(payload.home),
-      this.teamService.getTeam(payload.away)
+    if(payload.home === payload.away){
+      next(new CustomError(401, "A team cannot play itself"));
+    }
+
+    const [home, away] = await Promise.all([
+      this.team.findById(payload.home),
+      this.team.findById(payload.away)
     ])
-    
-    if (!home || !away ) {
+
+    if (!home || !away) {
       next(new CustomError(401, "One of the teams selected do not exist"));
     }
 
@@ -29,22 +33,32 @@ export class FixtureService {
       venue: home.stadium,
       time: payload.time
     });
-    return fixture;
+    return {...fixture.toJSON(), home, away};
   }
 
   async getAllFixtures(query) {
-    const fixtures = await this.fixture.find(
+    let fixtures = await this.fixture.find(
       {
         ...query,
       }
     );
-
-    return fixtures
+    const parsedfixtures= await Promise.all(fixtures.map(async(fixture)=>{
+      const [home, away] = await Promise.all([
+        this.team.findById(fixture.home),
+        this.team.findById(fixture.away)
+      ]) 
+      return {...fixture.toJSON(), home, away};
+    }))
+    return parsedfixtures
   }
 
   async getFixture(id: string) {
-    const fixture = await this.fixture.findById(id );
-    return fixture
+    const fixture = await this.fixture.findById(id);
+    const [home, away] = await Promise.all([
+      this.team.findById(fixture.home),
+      this.team.findById(fixture.away)
+    ])
+    return {...fixture.toJSON(), home, away};
   }
 
   async editFixture(id: string, payload, next: NextFunction) {
@@ -53,24 +67,33 @@ export class FixtureService {
       next(new CustomError(400, "fixture doesn't exist, Select a valid fixture"));
     }
 
-    const home = payload.home && await this.teamService.getTeam(payload.home)
-    const away = payload.away && await this.teamService.getTeam(payload.away)
-    
-    if (!home || !away ) {
-      next(new CustomError(401, "One of the teams selected do not exist"));
+    let home
+    if(payload.home){ 
+       home = await this.team.findById(payload.home)
+      if (!home) next(new CustomError(400, "home team doesn't exist, Select a valid team"));
+    }
+
+    if(payload.away){ 
+      const away = await this.team.findById(payload.away)
+      if (!away) next(new CustomError(400, "away team doesn't exist, Select a valid team"));
     }
 
     await this.fixture.updateOne(
       { _id: id },
       {
-        home,
-        away,
+        home: payload.home,
+        away: payload.away,
         time: payload.time,
         score: payload.score,
         venue: home?.stadium || fixture.venue
       }
     );
-    return await this.fixture.findById(id);
+    fixture = await this.fixture.findById(id);
+    const [homeTeam, away] = await Promise.all([
+      this.team.findById(fixture.home),
+      this.team.findById(fixture.away)
+    ])
+    return {...fixture.toJSON(), home: homeTeam, away};
   }
 
   async deleteFixture(id: string, next: NextFunction) {
@@ -79,12 +102,12 @@ export class FixtureService {
       next(new CustomError(400, "fixture doesn't exist, Please selecta a valid fixture"));
     }
 
-    await this.fixture.deleteOne({_id:id})
-    return {message: "fixture deleted successfully"};
+    await this.fixture.deleteOne({ _id: id })
+    return { message: "fixture deleted successfully" };
   }
 
   async link(id: string) {
-    const fixture = await this.fixture.findOne({link: id});
+    const fixture = await this.fixture.findOne({ link: id });
     return fixture
   }
 

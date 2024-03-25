@@ -1,11 +1,23 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
+
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.__v;
+      }
+    }
+  }
+})
+
 
 class Admin {
   @prop()
   firstname: string;
 
   @prop()
-  lastnam: string;
+  lastname: string;
 
   @prop({ unique: true})
   email: string;

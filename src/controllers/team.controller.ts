@@ -5,7 +5,7 @@ import { TeamService } from "../services";
 
 @Service()
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {}
+  constructor(private readonly teamService: TeamService) { }
 
   createTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -18,7 +18,7 @@ export class TeamController {
 
   getAllTeams = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.teamService.getAllTeams(req.body);
+      const result = await this.teamService.getAllTeams(req.query);
       res.customSuccess(200, result);
     } catch {
       next();
@@ -27,7 +27,8 @@ export class TeamController {
 
   getTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.teamService.getTeam(req.body);
+      const id = req.params.id as string
+      const result = await this.teamService.getTeam(id);
       res.customSuccess(200, result);
     } catch {
       next();
@@ -36,17 +37,18 @@ export class TeamController {
 
   editTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = req.params.id
+      const id = req.params.id as string
       const result = await this.teamService.editTeam(id, req.body, next);
       res.customSuccess(200, result);
     } catch {
       next();
     }
   };
-  
+
   deleteTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.teamService.deleteTeam(req.body, next);
+      const id = req.params.id as string
+      const result = await this.teamService.deleteTeam(id, next);
       res.customSuccess(200, result);
     } catch {
       next();

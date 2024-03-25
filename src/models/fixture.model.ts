@@ -9,7 +9,7 @@ import { nanoid } from "nanoid";
         delete ret.__v;
         const link = process.env.NODE_ENV === "production" ? `${process.env.DOMAIN}/link/${ret.link}` : `http://localhost:3000/link/${ret.link}`
         ret.link = link
-        return link
+        return ret
       }
     }
   }

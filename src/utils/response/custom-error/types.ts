@@ -3,6 +3,4 @@ export type ErrorResponse = {
   errorsValidation: ErrorValidation[] | null;
 };
 
-export type ErrorType = "General" | "Raw" | "Validation" | "Unauthorized";
-
 export type ErrorValidation = { [key: string]: string };

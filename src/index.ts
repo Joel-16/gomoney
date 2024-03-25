@@ -8,16 +8,23 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { rateLimit } from 'express-rate-limit'
 
 import "./utils/response/customSuccess";
 import { databaseConnection } from "./utils/database";
 import { errorHandler } from "./middleware/errorHandler";
 import routes from "./routes";
 
+
 export const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(rateLimit({
+	windowMs: 60 * 1000,
+	max: 10
+}))
 
 try {
   const accessLogStream = fs.createWriteStream(path.join(__dirname, "../log/access.log"), {
@@ -27,6 +34,7 @@ try {
 } catch (err) {
   console.log(err);
 }
+
 databaseConnection();
 app.use(morgan("combined"));
 
@@ -37,7 +45,6 @@ app.get("/ping", (req, res) => {
   });
 });
 
-app.use(bodyParser.json());
 app.use("/", routes);
 
 app.use(errorHandler);

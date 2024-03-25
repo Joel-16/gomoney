@@ -1,4 +1,5 @@
 import { mongoose } from "@typegoose/typegoose";
+import { createClient } from "redis";
 
 export async function databaseConnection() {
   try {
@@ -9,3 +10,8 @@ export async function databaseConnection() {
     console.error(error);
   }
 }
+
+let redisClient = createClient()
+redisClient.connect().catch((error)=>console.error(error)).then(()=> console.log("redis connected"))
+
+export {redisClient}

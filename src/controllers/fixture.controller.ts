@@ -5,7 +5,7 @@ import { FixtureService } from "../services";
 
 @Service()
 export class FixtureController {
-  constructor(private readonly fixtureService: FixtureService) {}
+  constructor(private readonly fixtureService: FixtureService) { }
 
   createFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -27,7 +27,8 @@ export class FixtureController {
 
   getFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.fixtureService.getFixture(req.body);
+      const id = req.params.id as string
+      const result = await this.fixtureService.getFixture(id);
       res.customSuccess(200, result);
     } catch {
       next();
@@ -36,17 +37,17 @@ export class FixtureController {
 
   editFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = req.params.id
+      const id = req.params.id as string
       const result = await this.fixtureService.editFixture(id, req.body, next);
       res.customSuccess(200, result);
     } catch {
       next();
     }
   };
-  
+
   deleteFixture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.id
+      const id = req.params.id as string
       const result = await this.fixtureService.deleteFixture(id, next);
       res.customSuccess(200, result);
     } catch {
@@ -54,7 +55,7 @@ export class FixtureController {
     }
   };
 
-  link= async (req: Request, res: Response, next: NextFunction) => {
+  link = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id
       const result = await this.fixtureService.link(id);
