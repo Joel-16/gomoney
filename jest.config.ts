@@ -8,7 +8,8 @@ const config: Config.InitialOptions = {
   testPathIgnorePatterns: [
     "/__tests__/utils/"
   ],
-  testTimeout:20000000
+  testTimeout:20000000,
+  preset: "@shelf/jest-mongodb"
 
 };
 export default config;

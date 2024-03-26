@@ -1,6 +1,6 @@
 import { compareSync, hashSync } from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { Account, Admin, Fixture, Team } from '../../src/models';
+import { Account, Admin, Fixture, Team } from './models';
 
 export class AccountService {
     static async register(payload) {
@@ -27,7 +27,7 @@ export class AccountService {
         }
 
         return {
-            token: jwt.sign({ id: account._id.toString(), admin: false }, process.env.JWT_SECRET as string),
+            token: jwt.sign({ id: account._id.toString(), admin: false }, "sfdfgfhgsa"),
             data: account
         };
     }
@@ -59,7 +59,7 @@ export class AdminService {
         }
 
         return {
-            token: jwt.sign({ id: admin._id.toString(), admin: false }, process.env.JWT_SECRET as string),
+            token: jwt.sign({ id: admin._id.toString(), admin: false }, "dfghgfgdfsas"),
             data: admin
         };
     }
@@ -80,7 +80,8 @@ export class TeamService {
     }
 
     static async updateTeam(id: string, payload) {
-        return await Team.findByIdAndUpdate(id, payload);
+        await Team.updateOne({_id:id}, payload);
+        return await Team.findById(id)
     }
 
     static async delete(id: string) {
@@ -143,14 +144,14 @@ export class FixtureService {
 
     static async getFixture(id: string) {
         const fixture = await Fixture.findById(id);
-        if (fixture) {
-            const [home, away] = await Promise.all([
-                Team.findById(fixture.home),
-                Team.findById(fixture.away)
-            ])
-            return { ...fixture.toJSON(), home, away };
+        if (!fixture) {
+            return {}
         }
-        return {}
+        const [home, away] = await Promise.all([
+            Team.findById(fixture.home),
+            Team.findById(fixture.away)
+        ])
+        return { ...fixture.toJSON(), home, away };
     }
 
     static async editFixture(id: string, payload) {
@@ -160,7 +161,7 @@ export class FixtureService {
             home = await Team.findById(payload.home)
         }
 
-        const updatedfixture = await Fixture.findByIdAndUpdate(
+        await Fixture.updateOne(
             { _id: id },
             {
                 home: payload.home,
@@ -170,12 +171,12 @@ export class FixtureService {
                 venue: home?.stadium || fixture?.venue
             }
         );
-      
+        fixture = await Fixture.findOne({ _id: id });
         const [homeTeam, away] = await Promise.all([
             Team.findById(fixture?.home),
             Team.findById(fixture?.away)
         ])
-        return { ...updatedfixture?.toJSON(), home: homeTeam, away };
+        return { ...fixture?.toJSON(), home: homeTeam, away };
     }
 
     static async deleteFixture(id: string) {

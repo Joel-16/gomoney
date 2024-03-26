@@ -1,18 +1,16 @@
-import { Account } from '../src/models';
-import { databaseConnection, disconnectDatabase} from './utils/database';
+import { Account } from './utils/models';
 import { AccountService } from './utils/services';
+import { mongoose } from '@typegoose/typegoose';
 
 describe('User Service', () => {
   beforeAll(async () => {
-    await databaseConnection;
+    await mongoose.connect(globalThis.__MONGO_URI__);
   });
 
   afterEach(async () => {
     await Account.deleteMany({})
   });
-  afterAll(async () => {
-    await disconnectDatabase();
-  });
+
 
   it('should create a user account', async () => {
     const admin= { firstname: 'testAdmin1', lastname: "tt1", email:"testCoach", password: "test stadium", address: "" };

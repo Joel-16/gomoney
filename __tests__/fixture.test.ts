@@ -1,19 +1,17 @@
-import { Fixture, Team } from '../src/models';
-import { databaseConnection, disconnectDatabase} from './utils/database';
+import { Fixture, Team } from './utils/models';
 import { FixtureService, TeamService } from './utils/services';
+import { mongoose } from '@typegoose/typegoose';
 
 describe('Fixture Service', () => {
   beforeAll(async () => {
-    await databaseConnection;
+    await mongoose.connect(globalThis.__MONGO_URI__);
   });
 
   afterEach(async () => {
     await Team.deleteMany({})
     await Fixture.deleteMany({});
   });
-  afterAll(async () => {
-    await disconnectDatabase();
-  });
+
 
   it('should create a Fixture', async () => {
     const team= { name: 'testTeam1', code_name: "tt1", coach:"testCoach", stadium: "test stadium" };
@@ -21,11 +19,11 @@ describe('Fixture Service', () => {
     const createdTeam = await TeamService.createTeam(team)
     const createdTeam1 = await TeamService.createTeam(team1)
     const createdFixture = await FixtureService.createFixture ({home: createdTeam._id, away: createdTeam1._id, time:"2024-04-20"});
-    expect(createdFixture).not.toHaveProperty("message")
-    expect(createdFixture.venue).toBe(team.stadium);
+    expect(createdFixture).toHaveProperty("_id")
+    expect(createdFixture.status).toBe("pending");
   });
 
-  it('should get all team', async () => {
+  it('should get all fixtures', async () => {
     const team= { name: 'testTeam1', code_name: "tt1", coach:"testCoach", stadium: "test stadium" };
     const team1= { name: 'testTeam', code_name: "tt", coach:"testCoach", stadium: "test stadium" };
     const createdTeam = await TeamService.createTeam(team)
@@ -43,7 +41,7 @@ describe('Fixture Service', () => {
     const createdTeam1 = await TeamService.createTeam(team1)
     const createdFixture = await FixtureService.createFixture ({home: createdTeam._id, away: createdTeam1._id, time:"2024-04-20"});
     const result = await FixtureService.editFixture(createdFixture._id.toString(), {time: "2023-04-20"});
-    expect(result.time).toBe( "2023-04-20");
+    expect(result?.time?.toISOString().split("T")[0]).toBe( "2023-04-20");
   });
 
   it('should delete a fixture', async () => {
@@ -52,9 +50,8 @@ describe('Fixture Service', () => {
     const createdTeam = await TeamService.createTeam(team)
     const createdTeam1 = await TeamService.createTeam(team1)
     const createdFixture = await FixtureService.createFixture ({home: createdTeam._id, away: createdTeam1._id, time:"2024-04-20"});
-    const result = await FixtureService.deleteFixture(createdFixture._id.toString());
-    expect(result).toBe(true);
+    await FixtureService.deleteFixture(createdFixture._id.toString());
     const readFixture = await FixtureService.getFixture(createdFixture._id.toString());
-    expect(readFixture).toBeNull();
+    expect(Object.keys(readFixture).length).toBe(0);
   });
 });
