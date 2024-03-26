@@ -1,6 +1,7 @@
 import { NextFunction } from "express";
 import { Service } from "typedi";
 
+import { redisClient } from "../utils/database";
 import { Fixture, Team } from "../models";
 import { CustomError } from "../utils/response/custom-error/CustomError";
 import { FixtureDto } from "../types";
@@ -49,6 +50,7 @@ export class FixtureService {
       ]) 
       return {...fixture.toJSON(), home, away};
     }))
+    await redisClient.set("/fixtures", JSON.stringify(parsedfixtures), {EX: 180})
     return parsedfixtures
   }
 

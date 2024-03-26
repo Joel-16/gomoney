@@ -1,6 +1,7 @@
 import { NextFunction } from "express";
 import { Service } from "typedi";
 
+import { redisClient } from "../utils/database";
 import { Fixture, Team } from "../models";
 import { CustomError } from "../utils/response/custom-error/CustomError";
 import { TeamDto } from "../types";
@@ -28,6 +29,7 @@ export class TeamService {
 
   async getAllTeams(query?:any) {
     const teams = await this.team.find(query);
+    await redisClient.set("/teams", JSON.stringify(teams), {EX: 180})
     return teams
   }
 

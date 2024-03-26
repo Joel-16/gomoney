@@ -1,7 +1,8 @@
-import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
+import { Severity, getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 import { nanoid } from "nanoid";
 
 @modelOptions({
+  options:{allowMixed: Severity.ALLOW},
   schemaOptions: {
     timestamps: true,
     toJSON: {

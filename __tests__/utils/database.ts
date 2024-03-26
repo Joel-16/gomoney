@@ -2,14 +2,17 @@ import { mongoose } from "@typegoose/typegoose";
 // import { createClient } from "redis";
 
 export async function databaseConnection() {
-  try {
     console.log(process.env.DATABASE_URL)
-    await mongoose.connect(`${process.env.TEST_DATABASE}`);
-    console.log("database connected");
+    mongoose.connect(`${process.env.TEST_DATABASE}`)
+    mongoose.connection.on('connected', () => {
+      console.log('Connected to MongoDB');
+    });
+    
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err);
+    });
     return;
-  } catch (error) {
-    console.log(error);
-  }
+
 }
 
 export async function disconnectDatabase(){
