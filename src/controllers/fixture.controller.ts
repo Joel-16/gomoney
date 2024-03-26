@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import { Service } from "typedi";
 
 import { FixtureService } from "../services";
+import { CustomError } from "../utils/response/custom-error/CustomError";
 
 @Service()
 export class FixtureController {
@@ -18,7 +19,8 @@ export class FixtureController {
 
   getAllFixtures = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.fixtureService.getAllFixtures(req.body);
+      if(req.query.status && !["pending", "completed"].includes(req.query.status as string)) next(new CustomError(400, "Unsurpported query value"))
+      const result = await this.fixtureService.getAllFixtures(req.query);
       res.customSuccess(200, result);
     } catch {
       next();

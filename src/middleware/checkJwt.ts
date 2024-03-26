@@ -17,7 +17,7 @@ export const authorizationMiddleware = (req: Request, res: Response, next: NextF
     ["iat", "exp"].forEach((keyToRemove) => delete jwtPayload[keyToRemove]);
     req.jwtPayload = jwtPayload as JwtPayload;
     if(req.method !== "GET" && !req.jwtPayload.admin){
-      const customError = new CustomError(401, "Unauthorized, Please attempt to login again");
+      const customError = new CustomError(401, "YOU ARE NOT AUTHORIZED TO PERFORM THIS OPERATION");
       return next(customError);
     }
     next();
