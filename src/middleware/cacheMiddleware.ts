@@ -6,7 +6,8 @@ export const cacheMiddleware = async (req: Request, res: Response, next: NextFun
   const data= await redisClient.get(req.originalUrl)
   if(data){
     res.status(200).json({data: JSON.parse(data)})
-  }
+  } else {
     next();
+  }
 };
 

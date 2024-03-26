@@ -11,7 +11,7 @@ export async function databaseConnection() {
   }
 }
 
-let redisClient = createClient()
+const redisClient = process.env.NODE_ENV === "production" ? createClient({url: `${process.env.REDISCLOUD_URL}`}) : createClient({})
 redisClient.connect().catch((error)=>console.error(error)).then(()=> console.log("redis connected"))
 
 export {redisClient}
