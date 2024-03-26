@@ -24,7 +24,8 @@ app.use(bodyParser.json());
 app.use(rateLimit({
   legacyHeaders: false,
 	windowMs: 60 * 1000,
-	max: 10
+	max: 10,
+  standardHeaders: 'draft-7'
 }))
 
 try {
